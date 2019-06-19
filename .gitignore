@@ -2,10 +2,10 @@
 .DS_Store
 
 # Make
-*helm*
 spinnaker-config.yaml
 spinnaker-sa.json
 .create*
 .install*
 .initialize*
 .enable*
+helm*.tar.*

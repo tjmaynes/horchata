@@ -4,8 +4,8 @@
 
 ## Requirements
 
-- [Google Cloud SDK](https://cloud.google.com/appengine/docs/standard/go/download)
-- [Google Cloud Registration](https://cloud.google.com/gcp/getting-started/)
+- [Google Cloud SDK](https://cloud.google.com/sdk/docs/)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/s)
 
 ## Usage
 
@@ -26,7 +26,14 @@ make setup_port_forwarding PORT=3000
 
 ## Notes
 
+- [GCP Bug](https://github.com/spinnaker/spinnaker.github.io/issues/443#issuecomment-408913130): When you run `make clean` it will delete the service-account created, once you delete your service-account you *will* have to create a new service-account name that is unique (you haven't used yet).
+
+## Links
+
 - [Deploy Spinnaker on Kubernetes Engine](https://medium.com/velotio-perspectives/know-everything-about-spinnaker-how-to-deploy-using-kubernetes-engine-57090881c78f)
+- [Spinnaker Helm Chart](https://github.com/helm/charts/blob/master/stable/spinnaker/values.yaml)
+- [Spinnaker Docker Registry setup](https://www.spinnaker.io/setup/install/providers/docker-registry/)
+- [Continuous Delivery on GKE and Spinnaker tutorial](https://cloud.google.com/solutions/continuous-delivery-spinnaker-kubernetes-engine)
 
 ## LICENSE
 ```
