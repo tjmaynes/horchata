@@ -4,8 +4,6 @@
 # Make
 spinnaker-config.yaml
 spinnaker-sa.json
-.create*
+.setup*
 .install*
-.initialize*
-.enable*
-helm*.tar.*
+charts/

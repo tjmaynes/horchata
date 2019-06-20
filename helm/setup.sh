@@ -12,13 +12,6 @@ then
   exit 1
 fi
 
-# Download and install Helm
-curl -LO https://storage.googleapis.com/kubernetes-helm/helm-v$HELM_VERSION-darwin-amd64.tar.gz
-tar -zxvf helm-v$HELM_VERSION-darwin-amd64.tar.gz
-chmod +x ./darwin-amd64/helm
-mv ./darwin-amd64/helm /usr/local/bin/
-rm -rf ./darwin-amd64
-
 # Setup role binding for user-admin
 kubectl create clusterrolebinding user-admin-binding \
     --clusterrole=cluster-admin \
@@ -31,5 +24,13 @@ kubectl create clusterrolebinding tiller-admin-binding \
     --serviceaccount=kube-system:tiller
 
 # Run Helm init and update repositories
-helm init --service-account=tiller --upgrade
-helm update
+helm init \
+    --service-account tiller \
+    --tiller-namespace istio-system \
+    --upgrade
+helm repo update
+
+# Wait for Tiller to be setup
+echo 'Wait for new Tiller service to be available...'
+sleep 40
+echo '...finished waiting!'

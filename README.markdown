@@ -1,32 +1,29 @@
 # Learning Kubernetes
 
-> Learning Kubernetes by setting up Helm and Spinnaker on Google Kubernetes Engine.
+> Learning Kubernetes by setting up Helm, Istio, and Spinnaker on Google Kubernetes Engine.
 
 ## Requirements
 
-- [Google Cloud SDK](https://cloud.google.com/sdk/docs/)
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/s)
+- [google cloud sdk](https://cloud.google.com/sdk/docs/)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl)
+- [helm](https://helm.sh/docs/using_helm/)
 
 ## Usage
 
-To install dependencies, run the following command:
+To install kubernetes, helm, istio, and spinnaker, run the following command:
 ```bash
-make install_dependencies
+make setup
 ```
 
-To delete the entire K8s cluster on gCloud setup, including service accounts and storage utils created for this project, run the following command:
+To delete all the GCloud apps created from this repo, run the following command:
 ```bash
-make clean
+make teardown
 ```
 
-Optional: Setup port forwarding to localhost, run the following command:
+*Optional*: Setup Spinnaker port forwarding to localhost, run the following command:
 ```bash
-make setup_port_forwarding PORT=3000
+make setup_spinnaker_port_forwarding PORT=3000
 ```
-
-## Notes
-
-- [GCP Bug](https://github.com/spinnaker/spinnaker.github.io/issues/443#issuecomment-408913130): When you run `make clean` it will delete the service-account created, once you delete your service-account you *will* have to create a new service-account name that is unique (you haven't used yet).
 
 ## Links
 
