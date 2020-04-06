@@ -1,9 +1,10 @@
-# Mac OS stuff
+# Mac OS
 .DS_Store
 
 # Make
-spinnaker-config.yaml
-spinnaker-sa.json
 .setup*
 .install*
 charts/
+
+# Tools
+bin/

@@ -1,78 +1,59 @@
 CLUSTER_NAME := learning-kubernetes
 CLUSTER_REGION := us-central1
-CLUSTER_VERSION := 1.12.8-gke.6
-HELM_VERSION := 2.13.0
-ISTIO_CHART_VERSION := 1.2.0
+CLUSTER_VERSION := 1.14.10-gke.27
+CLUSTER_NODE_VERSION := 1.15.9-gke.26
+GCLOUD_VERSION := 287.0.0
+HELM_VERSION := 2.16.5
+ISTIO_CHART_VERSION := 1.5.1
 ISTIO_NAMESPACE := istio-system
-SPINNAKER_SERVICE_ACCOUNT_NAME := spinnaker-storage-account-0
-SPINNAKER_VERSION := 1.10.2
-SPINNAKER_TIMEOUT := 600
-SPINNAKER_CONFIG_FILE := spinnaker-config.yaml
-SPINNAKER_SERVICE_ACCOUNT_JSON_FILE := spinnaker-sa.json
-SPINNAKER_USERNAME := _json_key
-SPINNAKER_EMAIL := 1234@5678.com
-SPINNAKER_NAMESPACE := spinnaker
-SPINNAKER_CHART_VERSION := 1.1.6
-SPINNAKER_PORT := 3000
-PROJECT_NAME = $(shell gcloud info --format='value(config.project)')
-SPINNAKER_STORAGE_BUCKET := $(PROJECT_NAME)-cd-config
-SERVICE_USER = $(shell gcloud config get-value account)
-SPINNAKER_DECK_POD = $(shell kubectl get pods --namespace $(SPINNAKER_NAMESPACE) -l "cluster=spin-deck" -o jsonpath="{.items[0].metadata.name}")
-SPINNAKER_SERVICE_ACCOUNT_EMAIL = $(shell gcloud iam service-accounts list --filter="displayName:$(SPINNAKER_SERVICE_ACCOUNT_NAME)" --format='value(email)')
+PROJECT_NAME = $(shell ./bin/gcloud/bin/gcloud info --format='value(config.project)')
+SERVICE_USER = $(shell ./bin/gcloud/bin/gcloud config get-value account)
+
+install_dependencies:
+	chmod +x ./scripts/install_dependencies.sh
+	./scripts/install_dependencies.sh \
+	$(GCLOUD_VERSION) \
+	$(HELM_VERSION)
+
+define run_setup
+	chmod +x ./$1/setup.sh
+	./$1/setup.sh
+endef
 
 .setup_gcloud_dependencies:
-	PROJECT_NAME=$(PROJECT_NAME) \
-	CLUSTER_NAME=$(CLUSTER_NAME) \
-	CLUSTER_REGION=$(CLUSTER_REGION) \
-	SPINNAKER_SERVICE_ACCOUNT_NAME=$(SPINNAKER_SERVICE_ACCOUNT_NAME) \
-	SPINNAKER_SERVICE_ACCOUNT_JSON_FILE=$(SPINNAKER_SERVICE_ACCOUNT_JSON_FILE) \
-	SPINNAKER_VERSION=$(SPINNAKER_VERSION) \
-	SPINNAKER_STORAGE_BUCKET=$(SPINNAKER_STORAGE_BUCKET) \
-	./gcloud/setup.sh
+	$(call run_setup,gcloud) \
+	$(PROJECT_NAME) \
+	$(CLUSTER_NAME) \
+	$(CLUSTER_REGION) \
+	$(CLUSTER_VERSION) \
+	$(CLUSTER_NODE_VERSION)
 	touch $@
 
 .install_helm_on_k8s:
-	HELM_VERSION=$(HELM_VERSION) \
-	SERVICE_USER=$(SERVICE_USER) \
-	./helm/setup.sh
+	$(call run_setup,helm) \
+	$(SERVICE_USER)
 	touch $@
 
 .install_istio_on_k8s:
-	ISTIO_CHART_VERSION=$(ISTIO_CHART_VERSION) \
-	ISTIO_NAMESPACE=$(ISTIO_NAMESPACE) \
-	./istio/setup.sh
+	$(call run_setup,istio) \
+	$(ISTIO_CHART_VERSION) \
+	$(ISTIO_NAMESPACE)
 	touch $@
 
-.install_spinnaker_on_k8s:
-	PROJECT_NAME=$(PROJECT_NAME) \
-	SPINNAKER_CONFIG_FILE=$(SPINNAKER_CONFIG_FILE) \
-	SPINNAKER_SERVICE_ACCOUNT_JSON_FILE=$(SPINNAKER_SERVICE_ACCOUNT_JSON_FILE) \
-	SPINNAKER_TIMEOUT=$(SPINNAKER_TIMEOUT) \
-	SPINNAKER_VERSION=$(SPINNAKER_VERSION) \
-	SPINNAKER_STORAGE_BUCKET=$(SPINNAKER_STORAGE_BUCKET) \
-	SPINNAKER_USERNAME=$(SPINNAKER_USERNAME) \
-	SPINNAKER_EMAIL=$(SPINNAKER_EMAIL) \
-	SPINNAKER_CHART_VERSION=$(SPINNAKER_CHART_VERSION) \
-	SPINNAKER_NAMESPACE=$(SPINNAKER_NAMESPACE) \
-	./spinnaker/setup.sh
-	touch $@
+workstation: install_dependencies
+	./bin/gcloud/bin/gcloud init
 
-setup: .setup_gcloud_dependencies .install_helm_on_k8s .install_istio_on_k8s .install_spinnaker_on_k8s
-
-setup_spinnaker_port_forwarding:
-	SPINNAKER_NAMESPACE=$(SPINNAKER_NAMESPACE) \
-	SPINNAKER_DECK_POD=$(SPINNAKER_DECK_POD) \
-	SPINNAKER_PORT=$(SPINNAKER_PORT) \
-	./spinnaker/setup-port-forwarding.sh
+setup_cluster: install_dependencies .setup_gcloud_dependencies .install_helm_on_k8s .install_istio_on_k8s
 
 .remove_install_files:
 	rm -rf .install_* .setup_* charts/
-	rm -rf $(SPINNAKER_CONFIG_FILE) $(SPINNAKER_SERVICE_ACCOUNT_JSON_FILE)
 
-teardown: .remove_install_files
-	PROJECT_NAME=$(PROJECT_NAME) \
-	CLUSTER_NAME=$(CLUSTER_NAME) \
-	SPINNAKER_STORAGE_BUCKET=$(SPINNAKER_STORAGE_BUCKET) \
-	SPINNAKER_SERVICE_ACCOUNT_EMAIL=$(SPINNAKER_SERVICE_ACCOUNT_EMAIL) \
-	CLUSTER_REGION=$(CLUSTER_REGION) \
-	./gcloud/teardown.sh
+teardown_cluster: install_dependencies .remove_install_files
+	chmod +x ./scripts/install_dependencies.sh
+	./scripts/teardown.sh \
+	$(PROJECT_NAME) \
+	$(CLUSTER_NAME) \
+	$(CLUSTER_REGION)
+
+clean: .remove_install_files
+	rm -rf bin/
