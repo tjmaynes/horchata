@@ -1,6 +1,6 @@
-# Learning Kubernetes
+# Kubernetes Sandbox
 
-> Automating the creation of a Kubernetes cluster in GKE and deploying a stateful application to the newly created cluster.
+> Automating the creation of a Kubernetes sandbox on Google Kubernetes Engine.
 
 ## Requirements
 
@@ -29,7 +29,7 @@ To get to a clean state, run the following command:
 make teardown_cluster && make clean
 ```
 
-## Setting up a Kubernetes Cluster using Google Kubernetes Engine
+## Setting up a Kubernetes Cluster on GKE
 
 1. **WARNING**: the following will create services for real (as in money/billing). Make sure you run `make teardown_cluster` and check your [billing](https://console.cloud.google.com/billing/) page.
     - Take a look at this [page](https://cloud.google.com/billing/docs/how-to/budgets) for more info regarding Google Billing.
@@ -39,10 +39,6 @@ make teardown_cluster && make clean
     - Also, **before moving on to the next step** make sure you create a project (if you have not already).
 1. Next, run the following command to create our Kubernetes cluster on GKE: `make setup_cluster`.
     - This command will setup our GKE cluster with [helm charts](https://helm.sh/docs/topics/charts/) including [istio](https://istio.io/), the "service-mesh" tool.
-
-## TODO
-
-- 
 
 ## Links
 

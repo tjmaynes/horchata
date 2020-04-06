@@ -16,7 +16,7 @@ ensure_tools_installed()
 {
   ensure_tool_installed()
   {
-      if [[ -x "$(command -v $2)" ]]; then
+      if [[ -f $2 ]]; then
         echo "$1 is already installed..."
       else
         echo "$1 is not installed!"

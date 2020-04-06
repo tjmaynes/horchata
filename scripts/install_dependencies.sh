@@ -32,7 +32,7 @@ main()
 
   ensure_gcloud_installed()
   {
-      if [[ -x "$(command -v $GCLOUD_BIN_LOCATION)" ]]; then
+      if [[ -f $GCLOUD_BIN_LOCATION ]]; then
           echo "glcoud v$GCLOUD_VERSION is already installed..."
       else
           echo "Installing gcloud v$GCLOUD_VERSION into bin/gcloud..."
@@ -43,7 +43,7 @@ main()
   ensure_kubectl_installed()
   {
       if [[ -f $KUBECTL_BIN_LOCATION ]]; then
-          echo "kubectl v$KUBECTL_VERSION is already installed..."
+          echo "kubectl $KUBECTL_VERSION is already installed..."
       else
           echo "Installing 'kubectl' $KUBECTL_VERSION into bin/kubectl..."
           curl -LO "https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VERSION/bin/darwin/amd64/kubectl" && mv kubectl bin/
@@ -53,7 +53,7 @@ main()
 
   ensure_helm_installed()
   {
-      if [[ -x "$(command -v $HELM_BIN_LOCATION)" ]]; then
+      if [[ -f $HELM_BIN_LOCATION ]]; then
           echo "helm v$HELM_VERSION is already installed..."
       else
           echo "Installing helm v$HELM_VERSION into bin/helm..."
