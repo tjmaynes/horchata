@@ -1,59 +1,36 @@
-CLUSTER_NAME := learning-kubernetes
-CLUSTER_REGION := us-central1
-CLUSTER_VERSION := 1.14.10-gke.27
-CLUSTER_NODE_VERSION := 1.15.9-gke.26
-GCLOUD_VERSION := 287.0.0
-HELM_VERSION := 2.16.5
-ISTIO_CHART_VERSION := 1.5.1
-ISTIO_NAMESPACE := istio-system
-PROJECT_NAME = $(shell ./bin/gcloud/bin/gcloud info --format='value(config.project)')
-SERVICE_USER = $(shell ./bin/gcloud/bin/gcloud config get-value account)
+KUBECTL_VERSION := $(shell curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+SERVICE_USER    := some-user
 
-install_dependencies:
+include .env
+export $(shell sed 's/=.*//' .env)
+
+ensure_programs_installed:
+	$(call ensure_program_exists,docker)
+	$(call ensure_program_exists,kubectl)
+	$(call ensure_program_exists,skaffold)
+
+install_dependencies: ensure_programs_installed
 	chmod +x ./scripts/install_dependencies.sh
 	./scripts/install_dependencies.sh \
-	$(GCLOUD_VERSION) \
+	$(KUBECTL_VERSION) \
 	$(HELM_VERSION)
+
+setup: ensure_programs_installed
+	chmod +x ./scripts/setup.sh
+	./scripts/setup.sh \
+	$(SERVICE_USER) \
+	$(ISTIO_CHART_VERSION) \
+	$(ISTIO_NAMESPACE) \
+	$(TILLER_NAMESPACE)
+
+clean: remove_files
+	rm -rf bin/ charts/
 
 define run_setup
 	chmod +x ./$1/setup.sh
 	./$1/setup.sh
 endef
 
-.setup_gcloud_dependencies:
-	$(call run_setup,gcloud) \
-	$(PROJECT_NAME) \
-	$(CLUSTER_NAME) \
-	$(CLUSTER_REGION) \
-	$(CLUSTER_VERSION) \
-	$(CLUSTER_NODE_VERSION)
-	touch $@
-
-.install_helm_on_k8s:
-	$(call run_setup,helm) \
-	$(SERVICE_USER)
-	touch $@
-
-.install_istio_on_k8s:
-	$(call run_setup,istio) \
-	$(ISTIO_CHART_VERSION) \
-	$(ISTIO_NAMESPACE)
-	touch $@
-
-workstation: install_dependencies
-	./bin/gcloud/bin/gcloud init
-
-setup_cluster: install_dependencies .setup_gcloud_dependencies .install_helm_on_k8s .install_istio_on_k8s
-
-.remove_install_files:
-	rm -rf .install_* .setup_* charts/
-
-teardown_cluster: install_dependencies .remove_install_files
-	chmod +x ./scripts/install_dependencies.sh
-	./scripts/teardown.sh \
-	$(PROJECT_NAME) \
-	$(CLUSTER_NAME) \
-	$(CLUSTER_REGION)
-
-clean: .remove_install_files
-	rm -rf bin/
+define ensure_program_exists
+command -v ${1} >/dev/null 2>&1 || { echo >&2 "Program '${1}' is not installed!"; exit 1; }
+endef
