@@ -1,69 +1,55 @@
-SERVICE_USER=$1
-ISTIO_CHART_VERSION=$2
-ISTIO_NAMESPACE=$3
-TILLER_NAMESPACE=$4
+#!/bin/bash
 
-if [[ -z $SERVICE_USER ]]; then
-  echo 'Please provide user to allow credentials.'
-  exit 1
-elif [[ -z $ISTIO_CHART_VERSION ]]; then
-  echo 'Please specify a Helm Istio chart version to use.'
-  exit 1
-elif [[ -z $ISTIO_NAMESPACE ]]; then
-  echo 'Please specify a namespace for Istio on Kubernetes.'
-  exit 1
-elif [[ -z $TILLER_NAMESPACE ]]; then
-  echo 'Please specify a namespace for Tiller on Kubernetes.'
-  exit 1
-fi
+set -e
+
+source ./scripts/common.sh
+
+check_requirements() {
+  ensure_environment_variable_exists "SERVICE_USER" SERVICE_USER
+  ensure_environment_variable_exists "$ISTIO_NAMESPACE" ISTIO_NAMESPACE
+  ensure_environment_variable_exists "$TILLER_NAMESPACE" TILLER_NAMESPACE
+
+  ensure_command_exists bin/kubectl kubectl
+  ensure_command_exists bin/helm helm
+  ensure_command_exists bin/istioctl istioctl
+}
 
 setup_helm() {
-  if [[ -z $(kubectl get clusterrolebinding | grep "cluster-admin") ]]; then
-    kubectl create clusterrolebinding user-admin-binding \
+  if [[ -z $(bin/kubectl get clusterrolebinding | grep "cluster-admin") ]]; then
+    bin/kubectl create clusterrolebinding user-admin-binding \
       --clusterrole=cluster-admin \
       --user=$SERVICE_USER
   fi
 
-  if [[ -z $(kubectl get serviceaccount --all-namespaces | grep "tiller") ]]; then
-    kubectl create serviceaccount tiller --namespace kube-system
+  if [[ -z $(bin/kubectl get serviceaccount --all-namespaces | grep "tiller") ]]; then
+    bin/kubectl create serviceaccount tiller --namespace kube-system
   fi
 
-  if [[ -z $(kubectl get clusterrolebinding --all-namespaces | grep "tiller-admin-binding") ]]; then
-    kubectl create clusterrolebinding tiller-admin-binding \
+  if [[ -z $(bin/kubectl get clusterrolebinding --all-namespaces | grep "tiller-admin-binding") ]]; then
+    bin/kubectl create clusterrolebinding tiller-admin-binding \
       --clusterrole=cluster-admin \
       --serviceaccount=kube-system:tiller
   fi
 
-  if [[ -z $(kubectl get namespaces | grep "$TILLER_NAMESPACE") ]]; then
-    kubectl create namespace $TILLER_NAMESPACE
+  if [[ -z $(bin/kubectl get namespaces | grep "$TILLER_NAMESPACE") ]]; then
+    bin/kubectl create namespace "$TILLER_NAMESPACE"
   fi
 
-  helm init \
+  bin/helm init \
     --service-account tiller \
-    --tiller-namespace $TILLER_NAMESPACE \
+    --tiller-namespace "$TILLER_NAMESPACE" \
     --upgrade
-  helm repo update
+
+  bin/helm repo update
 }
 
 setup_istio() {
-  if [[ -x $(kubectl get namespaces | grep "$ISTIO_NAMESPACE") ]]; then
-    kubectl create namespace $ISTIO_NAMESPACE
-  fi
-
-  helm repo add istio.io https://storage.googleapis.com/istio-release/releases/$ISTIO_CHART_VERSION/charts/
-
-  helm fetch --untar --untardir charts 'istio.io/istio-init'
-
-  helm template charts/istio-init \
-    --name istio-init \
-    --namespace $ISTIO_NAMESPACE \
-    --set sidecarInjectorWebhook.enabled=false \
-    --set grafana.enabled=true \
-    --set servicegraph.enabled=true |
-    kubectl apply -f -
+  bin/istioctl x precheck
 }
 
 main() {
+  check_requirements
+
   setup_helm
   setup_istio
 }

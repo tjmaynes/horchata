@@ -1,11 +1,11 @@
-# K8s-Istio-Sandbox
+# Horchata
 
-> Automating the creation of a Kubernetes + Istio sandbox for local development and testing.
+> Automating the creation of a (Kubernetes + Istio)-powered PaaS.
 
 ## Requirements
 
 - [GNU Make](https://www.gnu.org/software/make)
-- [Curl](https://curl.haxx.se/)
+- [cURL](https://curl.haxx.se/)
 
 ## Usage
 
