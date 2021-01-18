@@ -1,6 +1,6 @@
 # Horchata
 
-> A (Kubernetes + Istio)-powered PaaS running on GKE creation tool.
+> A (Kubernetes + Istio)-powered PaaS running on GKE bootstrapping tool.
 
 ## Requirements
 
