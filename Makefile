@@ -11,8 +11,3 @@ setup:
 
 clean:
 	rm -rf bin/ charts/
-
-define run_setup
-	chmod +x ./$1/setup.sh
-	./$1/setup.sh
-endef
