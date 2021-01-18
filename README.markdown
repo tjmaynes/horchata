@@ -1,11 +1,12 @@
 # Horchata
 
-> Automating the creation of a (Kubernetes + Istio)-powered PaaS.
+> A (Kubernetes + Istio)-powered PaaS running on GKE creation tool.
 
 ## Requirements
 
 - [GNU Make](https://www.gnu.org/software/make)
 - [cURL](https://curl.haxx.se/)
+- [Docker](https://docs.docker.com/get-docker/)
 
 ## Usage
 
@@ -14,7 +15,7 @@ To install project dependencies, run the following command:
 make install_dependencies
 ```
 
-To setup kubernetes, helm, and istio, run the following command:
+To install K8s on GKE and setup Helm and Istio, run the following command:
 ```bash
 make setup
 ```

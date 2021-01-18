@@ -1,12 +1,12 @@
 # Mac OS
 .DS_Store
 
-# Make
-.setup*
-.install*
-charts/
-
 # Tools
 bin/
+charts/
+gcloud*
+helm*
+kubectl*
 
+# Editor
 .idea/

@@ -2,16 +2,19 @@
 
 set -e
 
-source ./scripts/common.sh
-
 check_requirements() {
-  ensure_environment_variable_exists "SERVICE_USER" SERVICE_USER
-  ensure_environment_variable_exists "$ISTIO_NAMESPACE" ISTIO_NAMESPACE
-  ensure_environment_variable_exists "$TILLER_NAMESPACE" TILLER_NAMESPACE
+  ensure_environment_variable_exists "$SERVICE_USER" "SERVICE_USER"
+  ensure_environment_variable_exists "$ISTIO_NAMESPACE" "ISTIO_NAMESPACE"
+  ensure_environment_variable_exists "$TILLER_NAMESPACE" "TILLER_NAMESPACE"
 
   ensure_command_exists bin/kubectl kubectl
   ensure_command_exists bin/helm helm
   ensure_command_exists bin/istioctl istioctl
+}
+
+setup_gke() {
+  gcloud auth login
+  gcloud services enable container.googleapis.com
 }
 
 setup_helm() {
@@ -48,8 +51,11 @@ setup_istio() {
 }
 
 main() {
+  source ./scripts/common.sh
+
   check_requirements
 
+  setup_gke
   setup_helm
   setup_istio
 }

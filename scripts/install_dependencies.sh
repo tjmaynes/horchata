@@ -20,9 +20,8 @@ ensure_kubectl_installed() {
     echo "kubectl $KUBECTL_VERSION is already installed: $KUBECTL_BIN_LOCATION"
   else
     echo "Installing 'kubectl' $KUBECTL_VERSION into $KUBECTL_BIN_LOCATION..."
-    curl -LO "https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VERSION/bin/$OS_TYPE/amd64/kubectl" && mv kubectl bin/
-    chmod +x $KUBECTL_BIN_LOCATION
-    rm -rf kubectl
+    curl -LO "https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VERSION/bin/$OS_TYPE/amd64/kubectl"
+    mv kubectl $KUBECTL_BIN_LOCATION && chmod +x $KUBECTL_BIN_LOCATION
   fi
 }
 
@@ -31,21 +30,21 @@ ensure_helm_installed() {
     echo "helm v$HELM_VERSION is already installed: $HELM_BIN_LOCATION"
   else
     echo "Installing helm v$HELM_VERSION into $HELM_BIN_LOCATION..."
-    curl -sL "https://get.helm.sh/helm-v$HELM_VERSION-$OS_TYPE-amd64.tar.gz" >helm-$HELM_VERSION.tar.gz
+    curl -L "https://get.helm.sh/helm-v$HELM_VERSION-$OS_TYPE-amd64.tar.gz" >helm-$HELM_VERSION.tar.gz
     tar -xf helm-$HELM_VERSION.tar.gz --strip-components 1
-    mv helm $HELM_BIN_LOCATION
+    mv helm $HELM_BIN_LOCATION && chmod +x $HELM_BIN_LOCATION
     rm -rf helm-$HELM_VERSION.tar.gz $OS_TYPE-amd64 README.md
   fi
 }
 
-ensure_istio_installed() {
+ensure_istioctl_installed() {
   if [[ -f $ISTIO_BIN_LOCATION ]]; then
     echo "istioctl v$ISTIO_VERSION is already installed: $ISTIO_BIN_LOCATION"
   else
     echo "Installing istio v$ISTIO_VERSION into $ISTIO_BIN_LOCATION..."
     curl -L https://istio.io/downloadIstio | ISTIO_VERSION=$ISTIO_VERSION TARGET_ARCH=x86_64 sh -
-    mv istio-$ISTIO_VERSION/bin/istioctl $ISTIO_BIN_LOCATION
-    rm -rf istio-$ISTIO_VERSION
+    mv istio-$ISTIO_VERSION/bin/istioctl $ISTIO_BIN_LOCATION && chmod +x $ISTIO_BIN_LOCATION
+    rm -rf istio-$ISTIO_VERSION/
   fi
 }
 
@@ -56,7 +55,7 @@ main() {
 
   ensure_kubectl_installed
   ensure_helm_installed
-  ensure_istio_installed
+  ensure_istioctl_installed
 }
 
 main

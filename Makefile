@@ -1,6 +1,3 @@
-KUBECTL_VERSION := $(shell curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
-SERVICE_USER    := some-user
-
 include .env
 export $(shell sed 's/=.*//' .env)
 
