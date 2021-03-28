@@ -1,13 +1,16 @@
-include .env
-export $(shell sed 's/=.*//' .env)
-
 install_dependencies:
-	chmod +x ./scripts/install_dependencies.sh
-	./scripts/install_dependencies.sh
+	dotnet restore
 
-setup:
-	chmod +x ./scripts/setup.sh
-	./scripts/setup.sh
+test: build
+	dotnet test
 
-clean:
-	rm -rf bin/ charts/
+build:
+	dotnet build	
+
+run:
+	dotnet run --project ./src/Horchata.CLI/Horchata.CLI.csproj
+
+deploy:
+	@ echo "Coming soon!"
+
+ship_it: install_dependencies test

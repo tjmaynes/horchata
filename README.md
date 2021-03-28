@@ -1,12 +1,10 @@
 # Horchata
 
-> A (Kubernetes + Istio)-powered PaaS running on GKE bootstrapping tool.
+> A cli tool for automating the creation of an (Kubernetes + Istio)-powered PaaS running on Azure AKS.
 
 ## Requirements
 
-- [GNU Make](https://www.gnu.org/software/make)
-- [cURL](https://curl.haxx.se/)
-- [Docker](https://docs.docker.com/get-docker/)
+- [.NET Core 5](https://dotnet.microsoft.com/download/dotnet)
 
 ## Usage
 
@@ -15,9 +13,9 @@ To install project dependencies, run the following command:
 make install_dependencies
 ```
 
-To install K8s on GKE and setup Helm and Istio, run the following command:
+To run all tests, run the following command:
 ```bash
-make setup
+make test
 ```
 
 ## Links
